@@ -2,7 +2,7 @@ import os
 from os import listdir
 from os.path import  join
 from datetime import datetime
-import PIL
+# import PIL
 from PIL import Image, ImageMath
 import io
 import zipfile
@@ -18,12 +18,13 @@ from telebot import apihelper
 # apihelper.API_URL = "http://127.0.0.1:8081/bot{0}/{1}" # for local api server
 bot = telebot.TeleBot('token')
 
-logID=0
-dataID=0
+logID = 00000
+dataID = -00000
 
-mypath='live_output'
-location=""
-maxTime=60 # max store time (minutes) 
+live_output = 'live_output'
+location = ''
+maxTime = 60 # max store time (minutes) 
+
 downlinks=[dict(downlink = 'NOAA APT', dataname = '/', imgdir='', preview = [dict(name = 'raw_sync.png', use = 'all')]),
            dict(downlink = 'NOAA DSB', dataname = 'noaa_dsb.tip', imgdir = 'HIRS', preview = [dict(name = 'hirs_rgb_HIRS_False_Color.png', use = 'all')]),
 
@@ -40,8 +41,8 @@ errorCounter=0
 defectCounter=0
 processed=[]
 unproc=[]
-folders = [ f.path for f in os.scandir(mypath) if f.is_dir() ]
-processed=folders
+folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
+processed = folders
 print("Program started")
 print("existing folders:", len(folders))
 bot.send_message(logID, ("Started, "+str(len(folders))+" folders exist there V3"))
@@ -87,7 +88,7 @@ def findFolders():
         global unproc
         global errorCounter
         global defectCounter
-        folders = [ f.path for f in os.scandir(mypath) if f.is_dir() ]
+        folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
 
         differences = set(difflib.ndiff(processed, folders))
         moved = set([item[2:] for item in differences if item[0]=='+' and '-' + item[1:] in differences])
@@ -95,20 +96,19 @@ def findFolders():
 
         unproc+=tolist(added)
         processed=folders
-
         if unproc!=[]:
             print("added folders:",len(unproc),"\/")
             a=0
             for q in range(0,len(unproc)):
-                product=unproc[a]
+                product = unproc[a]
                 filelist = [f for f in listdir(product) if join(product, f)]
                 print("   watch folder:", product, "index:", a)
 
                 if ('dataset.json' in filelist):
                     data = json.load(open(product+'/dataset.json','rb'))
-                    passtime=(datetime.strptime(product[len(mypath)+1:len(mypath)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
+                    passtime=(datetime.strptime(product[len(live_output)+1:len(live_output)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
                     sat=data["satellite"]
-                    folder=product[len(mypath)+1:]
+                    folder=product[len(live_output)+1:]
                     print("     dataset.json there")
 
 
@@ -128,7 +128,7 @@ def findFolders():
                         
 
                     if defined:
-                        img = PIL.Image.open(join(product, dl['imgdir'], imgname))
+                        img = Image.open(join(product, dl['imgdir'], imgname))
                         lines = str(img.size[1])
                         image=tojpg(join(product, dl['imgdir'], imgname))
 
@@ -166,8 +166,8 @@ def findFolders():
                             bot.send_message(logID, (product+' poped by time'))
                             defectCounter=0
                 a+=1
-    except Exception as err:
-        bot.send_message(logID, traceback.format_exc())
+    except Exception:
+        bot.send_message(logID, traceback.format_exc()+str('|||| product ||||' + product))
         errorCounter+=1
         print(traceback.format_exc(), "|Count:", errorCounter)
         if  errorCounter>=4:
