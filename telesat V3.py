@@ -2,7 +2,6 @@ import os
 from os import listdir
 from os.path import  join
 from datetime import datetime
-# import PIL
 from PIL import Image, ImageMath
 import io
 import zipfile
@@ -21,7 +20,8 @@ bot = telebot.TeleBot('token')
 logID = 00000
 dataID = -00000
 
-live_output = 'live_output'
+
+output_folder = 'live_output'
 location = ''
 maxTime = 60 # max store time (minutes) 
 
@@ -41,25 +41,25 @@ errorCounter=0
 defectCounter=0
 processed=[]
 unproc=[]
-folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
+folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
 processed = folders
 print("Program started")
 print("existing folders:", len(folders))
 bot.send_message(logID, ("Started, "+str(len(folders))+" folders exist there V3"))
 
-def sortByDate(a):
+def sortByDate(a, output_folder):
     def strToDate(dstring):
-        date_string=dstring[12:28]
+        date_string=dstring[len(output_folder)+1:len(output_folder)+17]
         # print("dstr",dstring)
         return datetime.strptime(date_string, '%Y-%m-%d_%H-%M')
     return sorted(a, key=strToDate)
 
-def tolist(iset):
+def tolist(iset, output_folder):
     setlist=[]
     if iset!=set():
         for item in iset:
             setlist.append(item)
-        setlist=sortByDate(setlist)
+        setlist=sortByDate(setlist, output_folder)
     return setlist
 
 def tojpg(imagepath):
@@ -88,14 +88,15 @@ def findFolders():
         global unproc
         global errorCounter
         global defectCounter
-        folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
+        folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
 
         differences = set(difflib.ndiff(processed, folders))
         moved = set([item[2:] for item in differences if item[0]=='+' and '-' + item[1:] in differences])
         added = set([item[2:] for item in differences if item[0]=='+']) - moved
 
-        unproc+=tolist(added)
+        unproc+=tolist(added, output_folder)
         processed=folders
+
         if unproc!=[]:
             print("added folders:",len(unproc),"\/")
             a=0
@@ -106,18 +107,18 @@ def findFolders():
 
                 if ('dataset.json' in filelist):
                     data = json.load(open(product+'/dataset.json','rb'))
-                    passtime=(datetime.strptime(product[len(live_output)+1:len(live_output)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
+                    print(product,output_folder)
+                    passtime=(datetime.strptime(product[len(output_folder)+1:len(output_folder)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
                     sat=data["satellite"]
-                    folder=product[len(live_output)+1:]
+                    folder=product[len(output_folder)+1:]
                     print("     dataset.json there")
 
 
                     for dl in downlinks:
                         for preview in dl['preview']:
                             imgname = preview['name']
-                            # print(imgname,os.path.exists(join(product, dl['dataname'])), os.path.exists(join(product, dl['imgdir'], imgname)), join(product, dl['imgdir'], imgname))
+
                             if os.path.exists(join(product, dl['dataname'])) and os.path.exists(join(product, dl['imgdir'], imgname)):  
-                                print('true')
                                 defined = True                  
                                 break
                             else:
@@ -136,7 +137,7 @@ def findFolders():
                         zf=zipfile.ZipFile(fileio,'w',compression=zipfile.ZIP_DEFLATED, compresslevel=9)
 
                         if dl['dataname'] == '/': 
-                            for root, files in os.walk(product):
+                            for root, dirs, files in os.walk(product):
                                 for file in files:
                                     zf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(product)))
                         else:
@@ -167,19 +168,15 @@ def findFolders():
                             defectCounter=0
                 a+=1
     except Exception:
-        bot.send_message(logID, traceback.format_exc()+str('|||| product ||||' + product))
         errorCounter+=1
         print(traceback.format_exc(), "|Count:", errorCounter)
         if  errorCounter>=4:
+            bot.send_message(logID, traceback.format_exc()+str('|||| product ||||' + product))
             unproc.pop(a)
             a-=1
             print("  poped by max attempts:", errorCounter, 'index:', a)
             errorCounter=0
 
 while True:
-    try:
-        findFolders()
-        time.sleep(10)
-    except Exception as err:
-        # bot.send_message(logID, err)
-        print(traceback.format_exc())
+    findFolders()
+    time.sleep(10)
