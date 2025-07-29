@@ -65,16 +65,16 @@ def tolist(iset, output_folder):
 def tojpg(imagepath):
     foo = Image.open(imagepath)
 
+    x,y=foo.size
+    if x>2000 and y>2000:
+        foo = foo.resize((int(x/2),int(y/2)),Image.LANCZOS)
+
+    if x<400 and y<400:
+            foo = foo.resize((int(x*4),int(y*4)),Image.NEAREST)
+
     if foo.mode in ('I'):
         foo = ImageMath.eval('foo/256', {'foo':foo}).convert('L')
     foo = foo.convert('RGB')
-
-    x,y=foo.size
-    if x>2000 and y>200:
-        foo = foo.resize((int(x/2),int(y/2)),Image.LANCZOS)
-
-    if x<200 and y<100:
-            foo = foo.resize((int(x*4),int(y*4)),Image.NEAREST)
  
     b = io.BytesIO()
     foo.save(b, 'JPEG')
@@ -83,20 +83,21 @@ def tojpg(imagepath):
     return b
 
 def findFolders():
+    
+    global processed
+    global unproc
+    global errorCounter
+    global defectCounter
+    folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
+
+    differences = set(difflib.ndiff(processed, folders))
+    moved = set([item[2:] for item in differences if item[0]=='+' and '-' + item[1:] in differences])
+    added = set([item[2:] for item in differences if item[0]=='+']) - moved
+
+    unproc+=tolist(added, output_folder)
+    processed=folders
+    
     try:
-        global processed
-        global unproc
-        global errorCounter
-        global defectCounter
-        folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
-
-        differences = set(difflib.ndiff(processed, folders))
-        moved = set([item[2:] for item in differences if item[0]=='+' and '-' + item[1:] in differences])
-        added = set([item[2:] for item in differences if item[0]=='+']) - moved
-
-        unproc+=tolist(added, output_folder)
-        processed=folders
-
         if unproc!=[]:
             print("added folders:",len(unproc),"\/")
             a=0
