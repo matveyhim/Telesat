@@ -26,16 +26,17 @@ location = ''
 maxTime = 60 # max store time (minutes) 
 
 downlinks=[dict(downlink = 'NOAA APT', dataname = '/', imgdir='', preview = [dict(name = 'raw_sync.png', use = 'all')]),
-           dict(downlink = 'NOAA DSB', dataname = 'noaa_dsb.tip', imgdir = 'HIRS', preview = [dict(name = 'hirs_rgb_HIRS_False_Color.png', use = 'all')]),
+           dict(downlink = 'NOAA DSB', dataname = '/', imgdir = 'HIRS', preview = [dict(name = 'hirs_rgb_HIRS_False_Color.png', use = 'all')]),
 
-           dict(downlink = 'Meteor LRPT', dataname = 'meteor_m2-x_lrpt.cadu', imgdir = 'MSU-MR', preview = [dict(name = 'msu_mr_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'all'), dict(name = 'msu_mr_rgb_MSU-MR_124_False_Color_corrected.png.png', use = 'all')]),
+           dict(downlink = 'Meteor LRPT', dataname = '/', imgdir = 'MSU-MR', preview = [dict(name = 'msu_mr_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'all'), dict(name = 'msu_mr_rgb_MSU-MR_124_False_Color_corrected.png', use = 'all')]),
 
-           dict(downlink = 'NOAA HRPT', dataname = 'noaa_hrpt.raw16', imgdir = 'AVHRR', preview = [dict(name = 'avhrr_3_rgb_AVHRR_124_False_Color_corrected.png', use = 'day'), dict(name = 'avhrr_3_rgb_AVHRR_3b45_IR_False_Color_corrected', use = 'night')]),
-           dict(downlink = 'Meteor HRPT', dataname = 'meteor_hrpt.cadu', imgdir = 'MSU-MR', preview = [dict(name = 'msu_mr_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'day'), dict(name = 'msu_mr_rgb_AVHRR_3b45_IR_False_Color_corrected', use = 'night')]),
-           dict(downlink = 'MetOp AHRPT', dataname = 'metop_ahrpt.cadu', imgdir = 'AVHRR', preview = [dict(name = 'avhrr_3_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'day'), dict(name = 'avhrr_3_rgb_AVHRR_3b45_IR_False_Color_corrected', use = 'night')])]
+           dict(downlink = 'NOAA HRPT', dataname = 'noaa_hrpt.raw16', imgdir = 'AVHRR', preview = [dict(name = 'avhrr_3_rgb_AVHRR_124_False_Color_corrected.png', use = 'day'), dict(name = 'avhrr_3_rgb_AVHRR_3b45_IR_False_Color_corrected.png', use = 'night')]),
+           dict(downlink = 'Meteor HRPT', dataname = 'meteor_hrpt.cadu', imgdir = 'MSU-MR', preview = [dict(name = 'msu_mr_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'day'), dict(name = 'msu_mr_rgb_AVHRR_3b45_IR_False_Color_corrected.png', use = 'night')]),
+           dict(downlink = 'MetOp AHRPT', dataname = 'metop_ahrpt.cadu', imgdir = 'AVHRR', preview = [dict(name = 'avhrr_3_rgb_AVHRR_3a21_False_Color_corrected.png', use = 'day'), dict(name = 'avhrr_3_rgb_AVHRR_3b45_IR_False_Color_corrected.png', use = 'night')])]
            
         #    dict(downlink = 'AWS DB', dataname = 'aws_pfm.cadu', imgdir = 'STERNA', preview = [dict(name = 'sterna_rgb_AMSU_False_Color.png', use = 'all')]),
         #    dict(downlink = 'AWS DUMP', dataname = 'aws_pfm.cadu', imgdir = 'STERNA_Dump', preview = [dict(name = 'sterna_rgb_AMSU_False_Color.png', use = 'all')])]
+a=0
 a=0
 errorCounter=0
 defectCounter=0
