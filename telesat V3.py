@@ -20,8 +20,7 @@ bot = telebot.TeleBot('token')
 logID = 00000
 dataID = -00000
 
-
-output_folder = 'live_output'
+live_output = 'live_output'
 location = ''
 maxTime = 60 # max store time (minutes) 
 
@@ -37,30 +36,29 @@ downlinks=[dict(downlink = 'NOAA APT', dataname = '/', imgdir='', preview = [dic
         #    dict(downlink = 'AWS DB', dataname = 'aws_pfm.cadu', imgdir = 'STERNA', preview = [dict(name = 'sterna_rgb_AMSU_False_Color.png', use = 'all')]),
         #    dict(downlink = 'AWS DUMP', dataname = 'aws_pfm.cadu', imgdir = 'STERNA_Dump', preview = [dict(name = 'sterna_rgb_AMSU_False_Color.png', use = 'all')])]
 a=0
-a=0
 errorCounter=0
 defectCounter=0
 processed=[]
 unproc=[]
-folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
+folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
 processed = folders
 print("Program started")
 print("existing folders:", len(folders))
 bot.send_message(logID, ("Started, "+str(len(folders))+" folders exist there V3"))
 
-def sortByDate(a, output_folder):
+def sortByDate(a, live_output):
     def strToDate(dstring):
-        date_string=dstring[len(output_folder)+1:len(output_folder)+17]
+        date_string=dstring[len(live_output)+1:len(live_output)+17]
         # print("dstr",dstring)
         return datetime.strptime(date_string, '%Y-%m-%d_%H-%M')
     return sorted(a, key=strToDate)
 
-def tolist(iset, output_folder):
+def tolist(iset, live_output):
     setlist=[]
     if iset!=set():
         for item in iset:
             setlist.append(item)
-        setlist=sortByDate(setlist, output_folder)
+        setlist=sortByDate(setlist, live_output)
     return setlist
 
 def tojpg(imagepath):
@@ -89,13 +87,13 @@ def findFolders():
     global unproc
     global errorCounter
     global defectCounter
-    folders = [ f.path for f in os.scandir(output_folder) if f.is_dir() ]
+    folders = [ f.path for f in os.scandir(live_output) if f.is_dir() ]
 
     differences = set(difflib.ndiff(processed, folders))
     moved = set([item[2:] for item in differences if item[0]=='+' and '-' + item[1:] in differences])
     added = set([item[2:] for item in differences if item[0]=='+']) - moved
 
-    unproc+=tolist(added, output_folder)
+    unproc+=tolist(added, live_output)
     processed=folders
     
     try:
@@ -109,10 +107,10 @@ def findFolders():
 
                 if ('dataset.json' in filelist):
                     data = json.load(open(product+'/dataset.json','rb'))
-                    print(product,output_folder)
-                    passtime=(datetime.strptime(product[len(output_folder)+1:len(output_folder)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
+                    print(product,live_output)
+                    passtime=(datetime.strptime(product[len(live_output)+1:len(live_output)+17], '%Y-%m-%d_%H-%M').strftime('%Y-%m-%d %H:%M'))
                     sat=data["satellite"]
-                    folder=product[len(output_folder)+1:]
+                    folder=product[len(live_output)+1:]
                     print("     dataset.json there")
 
 
